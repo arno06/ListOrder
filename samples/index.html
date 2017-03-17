@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>List Order</title>
+        <style>
+            *{user-select: none;}
+            ul{padding:0;width:400px;position:relative;}
+            ul li{padding:10px;background:#217ebd;color:#fff;margin-bottom:5px;}
+            ul li i{display:inline-block;font-size:11px;padding:4px;background:#7faebd;float:right;cursor: move;}
+            ul li.list_order_shadow{opacity: .4;}
+            ul li.list_order_drag{position:absolute;}
+        </style>
+        <script src="../src/ListOrder.js"></script>
+    </head>
+    <body>
+        <h1>List Order</h1>
+        <ul>
+            <li>Element1 <i>drag</i></li>
+            <li>Element2 <i>drag</i></li>
+            <li>Element3 <i>drag</i></li>
+            <li>Element4 <i>drag</i></li>
+            <li>Element5 <i>drag</i></li>
+            <li>Element6 <i>drag</i></li>
+        </ul>
+        <script>
+            function onChangedHandler(pList)
+            {
+                console.log("changed");
+            }
+
+            ListOrder.setup("ul li", "i", onChangedHandler);
+        </script>
+    </body>
+</html>
