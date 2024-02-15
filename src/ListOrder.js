@@ -14,10 +14,13 @@ var ListOrder = (function(){
             this.currentOrder = "";
             this._mouseMoveHandler = this.mouseMoveHandler.bind(this);
             this._mouseUpHandler = this.mouseUpHandler.bind(this);
+            this._mouseDownHandler = this.mouseDownHandler.bind(this);
 
-            document.querySelectorAll(this.selector).forEach((pElement)=>{
-                pElement.querySelector(this.dragSelector).addEventListener("mousedown", this.mouseDownHandler.bind(this), false);
-            });
+            document.querySelectorAll(this.selector).forEach(this.registerItem.bind(this));
+        }
+
+        registerItem(pItem){
+            pItem.querySelector(this.dragSelector).addEventListener("mousedown", this._mouseDownHandler, false);
         }
 
         mouseDownHandler(e)
