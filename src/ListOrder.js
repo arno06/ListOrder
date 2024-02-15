@@ -22,15 +22,15 @@ var ListOrder = (function(){
 
         mouseDownHandler(e)
         {
-            this.currentOrder = "";
-            var index = 0;
-            document.querySelectorAll(this.selector).forEach((pElement)=>{
-                this.currentOrder += ""+index+",";
-                pElement.setAttribute("data-order", (index++));
+            document.querySelectorAll(this.selector).forEach((pElement, pIndex)=>{
+                pElement.setAttribute("data-index", pIndex);
+                pElement.setAttribute("data-order", pIndex);
             });
-            var t = e.currentTarget.parentNode;
+            this.currentOrder = Array.from(document.querySelectorAll(this.selector)).map((pElement)=>pElement.getAttribute("data-index")).join(",");
 
-            var draggable = t.cloneNode(true);
+            const t = e.currentTarget.parentNode;
+
+            const draggable = t.cloneNode(true);
 
             t.classList.add(this.shadowClass);
 
@@ -50,45 +50,60 @@ var ListOrder = (function(){
 
         mouseMoveHandler(e)
         {
-            var t = document.querySelector("."+this.dragClass);
-            var start = t.getAttribute("data-start").split(",");
-            var client = t.getAttribute("data-cursor").split(",");
-
-            var newTop = (Number(start[1]) + (e.clientY - Number(client[1])));
+            const t = document.querySelector("."+this.dragClass);
+            const start = t.getAttribute("data-start").split(",");
+            const client = t.getAttribute("data-cursor").split(",");
 
             t.style.left = (Number(start[0]) + (e.clientX - Number(client[0])))+"px";
-            t.style.top = newTop+"px";
+            t.style.top = (Number(start[1]) + (e.clientY - Number(client[1])))+"px";
 
-            var previousElement = null;
-            var lastDiff = null;
+            let previousElement = null;
 
-            t.parentNode.querySelectorAll(t.nodeName).forEach((pElement)=>{
+            t.parentNode.querySelectorAll(t.nodeName).forEach((pElement, pIndex)=>{
                 if(pElement.classList.contains(this.shadowClass) || pElement.classList.contains(this.dragClass))
                     return;
 
-                var top = pElement.offsetTop;
+                const offset = this.getOffset(pElement);
 
-                if(top < newTop)
-                {
-                    if(lastDiff === null||lastDiff > (newTop-top))
-                    {
-                        lastDiff = newTop - top;
-                        previousElement = pElement;
-                    }
+                if(e.clientX > offset.startX && e.clientX < offset.endX && e.clientY > offset.startY && e.clientY < offset.endY){
+                    previousElement = pElement;
                 }
             });
 
-            var s = document.querySelector("."+this.shadowClass);
-            t.parentNode.removeChild(s);
-
-            var ref = t.parentNode.firstChild;
-
-            if(previousElement)
-            {
-                ref = previousElement.nextSibling;
+            if(!previousElement){
+                return;
             }
 
+            const s = document.querySelector("."+this.shadowClass);
+            let pos = Number(s.getAttribute("data-order"));
+            let rep = Number(previousElement.getAttribute("data-order"));
+            t.parentNode.removeChild(s);
+            let ref = previousElement;
+            if(pos < rep){
+                ref = previousElement.nextSibling;
+            }
             t.parentNode.insertBefore(s, ref);
+            document.querySelectorAll(this.selector).forEach((pElement, pIndex)=>{
+                pElement.setAttribute("data-order", pIndex);
+            });
+
+        }
+
+        getOffset(pElement){
+            let offset = {startY:0, startX:0};
+            const width = pElement.offsetWidth;
+            const height = pElement.offsetHeight;
+            let scrollTop = pElement.scrollTop;
+            while(pElement){
+                scrollTop += pElement.scrollTop||0;
+                offset.startY += pElement.offsetTop||0;
+                offset.startX += pElement.offsetLeft||0;
+                pElement = pElement.parentNode;
+            }
+            offset.startY -= scrollTop;
+            offset.endX = offset.startX+width;
+            offset.endY = offset.startY+height;
+            return offset;
         }
 
         mouseUpHandler()
@@ -104,20 +119,14 @@ var ListOrder = (function(){
             document.removeEventListener("mousemove", this._mouseMoveHandler, false);
 
 
-            var order = "";
-            document.querySelectorAll(this.selector).forEach((pElement)=>{
-                order += ""+pElement.getAttribute("data-order")+",";
-            });
+            let order = Array.from(document.querySelectorAll(this.selector)).map((pElement)=>pElement.getAttribute("data-index")).join(",");
 
-            if(order != this.currentOrder && this.onChangedHandler)
+            if(order !== this.currentOrder && this.onChangedHandler)
             {
                 this.onChangedHandler(document.querySelectorAll(this.selector));
             }
         }
     }
-
-
-    NodeList.prototype.forEach = Array.prototype.forEach;
 
     return {
         setup:function(pListElementSelector, pDragStartSelector, pChangedHandler)
