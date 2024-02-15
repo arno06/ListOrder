@@ -93,19 +93,10 @@ var ListOrder = (function(){
         }
 
         getOffset(pElement){
-            let offset = {startY:0, startX:0};
-            const width = pElement.offsetWidth;
-            const height = pElement.offsetHeight;
-            let scrollTop = pElement.scrollTop;
-            while(pElement){
-                scrollTop += pElement.scrollTop||0;
-                offset.startY += pElement.offsetTop||0;
-                offset.startX += pElement.offsetLeft||0;
-                pElement = pElement.parentNode;
-            }
-            offset.startY -= scrollTop;
-            offset.endX = offset.startX+width;
-            offset.endY = offset.startY+height;
+            let rect = pElement.getBoundingClientRect();
+            let offset = {startY:rect.top, startX:rect.left};
+            offset.endX = offset.startX+pElement.offsetWidth;
+            offset.endY = offset.startY+pElement.offsetHeight;
             return offset;
         }
 
