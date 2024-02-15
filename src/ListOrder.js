@@ -1,6 +1,4 @@
-"use strict";
-
-var ListOrder = (function(){
+const ListOrder = (function(){
 
     class ListOrder
     {
@@ -26,8 +24,8 @@ var ListOrder = (function(){
         mouseDownHandler(e)
         {
             document.querySelectorAll(this.selector).forEach((pElement, pIndex)=>{
-                pElement.setAttribute("data-index", pIndex);
-                pElement.setAttribute("data-order", pIndex);
+                pElement.setAttribute("data-index", pIndex.toString());
+                pElement.setAttribute("data-order", pIndex.toString());
             });
             this.currentOrder = Array.from(document.querySelectorAll(this.selector)).map((pElement)=>pElement.getAttribute("data-index")).join(",");
 
@@ -62,7 +60,7 @@ var ListOrder = (function(){
 
             let previousElement = null;
 
-            t.parentNode.querySelectorAll(t.nodeName).forEach((pElement, pIndex)=>{
+            t.parentNode.querySelectorAll(t.nodeName).forEach((pElement)=>{
                 if(pElement.classList.contains(this.shadowClass) || pElement.classList.contains(this.dragClass))
                     return;
 
@@ -87,7 +85,7 @@ var ListOrder = (function(){
             }
             t.parentNode.insertBefore(s, ref);
             document.querySelectorAll(this.selector).forEach((pElement, pIndex)=>{
-                pElement.setAttribute("data-order", pIndex);
+                pElement.setAttribute("data-order", pIndex.toString());
             });
 
         }
